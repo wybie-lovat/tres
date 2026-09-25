@@ -1,178 +1,166 @@
-# Tres Project - Ethereum Transaction Sync API
+# Nobles & Common Folk at Quarrel
 
-## Overview
+![The complete diorama: Lionhold, Millbrook and Ravencrag Keep](renders/diorama_hero.jpg)
 
-This project provides an API to synchronize and query Ethereum transactions for specific wallet addresses within defined block ranges. It uses the Etherscan API to fetch transaction data and stores it in a PostgreSQL database.
+A brick-built LEGO® castle diorama in four books: two rival castles, the village caught
+between them, and three armies (two noble, one common) clashing on the village road.
 
-## Setup Instructions
+**3,528 pieces · 26 minifigures · 4 horses · 2 catapults · 128 × 32 studs (about 102 × 26 cm) ·
+about $430 of BrickLink parts (budget: $500)**
 
-1. Create and activate virtual environment:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
+| | |
+|---|---|
+| **Interactive 3D viewer** | __VIEWER_LINK__ (or open `viewer/` locally, see below) |
+| **Building instructions** | [`instructions/`](instructions): four PDF booklets, 322 steps |
+| **BrickLink order** | [`bricklink/wanted_list_complete.xml`](bricklink/wanted_list_complete.xml) and the [ordering guide](bricklink/ORDERING.md) |
+| **Digital model** | [`models/`](models): LDraw files for BrickLink Studio, LeoCAD and LDCad |
 
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## The story
 
-3. Start PostgreSQL using Docker Compose:
-   ```bash
-   # Make the script executable first (if needed)
-   chmod +x start_db.sh
-   
-   # Start the PostgreSQL container
-   ./start_db.sh
-   ```
-   
-   To stop the PostgreSQL container:
-   ```bash
-   ./stop_db.sh
-   ```
+For three generations **House Aurelion**, the Crimson Lions of Lionhold, and **House Corvane**, the
+Black Ravens of Ravencrag, have claimed the valley between their walls. Both houses tax Millbrook,
+the village on the only road that joins them. This spring Duke Aldric sent his knights east and
+Baroness Morwen sent hers west, and they met in the village square.
 
-4. Create a `.env` file based on `.env.example` and add your Etherscan API key:
-   ```
-   # Database connection settings
-   DB_NAME=tres_db
-   DB_USER=postgres
-   DB_PASSWORD=postgres
-   DB_HOST=localhost
-   DB_PORT=5432
-   
-   # Etherscan API key
-   ETHERSCAN_API_KEY=your_etherscan_api_key_here
-   ```
+The villagers had had enough. Bram the blacksmith, Hob the farmer and their neighbours rolled out
+barrels, crates and logs, barricaded the road, and now stand with pitchforks, shovels and torches
+between the two armies. Brother Anselm raises the chalice and begs everyone to go home. Nobody is
+listening yet.
 
-5. Run the main script to create tables and start the API server:
-   ```bash
-   python main.py
-   ```
+## What's in the set
 
-## API Endpoints
+| Book | Model | Pieces | Steps | Est. parts cost | Instructions | Wanted list |
+|---|---|---:|---:|---:|---|---|
+| 1 | **Lionhold**, castle of House Aurelion | 1,263 | 110 | $118.63 | [PDF](instructions/book1_lionhold.pdf) | [XML](bricklink/wanted_list_book1_lionhold.xml) |
+| 2 | **Millbrook**, village of the common folk | 872 | 72 | $108.37 | [PDF](instructions/book2_millbrook.pdf) | [XML](bricklink/wanted_list_book2_millbrook.xml) |
+| 3 | **Ravencrag Keep**, stronghold of House Corvane | 1,094 | 102 | $113.33 | [PDF](instructions/book3_ravencrag.pdf) | [XML](bricklink/wanted_list_book3_ravencrag.xml) |
+| 4 | **Warriors & Weapons**: figures, horses, catapults | 299 | 38 | $89.30 | [PDF](instructions/book4_warriors.pdf) | [XML](bricklink/wanted_list_book4_warriors.xml) |
+| | **Complete set** | **3,528** | **322** | **$429.64** | | [XML](bricklink/wanted_list_complete.xml) |
 
-### 1. Start Transaction Synchronization
+The four 32 × 32 baseplates sit in a row, and the road lines up across all of them:
 
-**Endpoint:** `POST /start_sync`
-
-**Request Body:**
-```json
-{
-  "address": "0x613700baf1481f3781a6b3ec9e44a4585f89dfbc",
-  "start_block": 12345678,
-  "end_block": 12345700
-}
+```
+ x:  0            32                              96           128
+     +------------+---------------+---------------+------------+
+     |  LIONHOLD  |   MILLBROOK   |   MILLBROOK   | RAVENCRAG  |
+     |  (Book 1)  |  west (Bk 2)  |  east (Bk 2)  |  (Book 3)  |
+     |   gate  >==|=== road ======|===== road ====|==<  gate   |
+     +------------+---------------+---------------+------------+
+                          viewer / front of the display
 ```
 
-**Response:**
-```json
-{
-  "message": "Sync completed for wallet 0x613700baf1481f3781a6b3ec9e44a4585f89dfbc"
-}
-```
+### Book 1 · Lionhold
 
-### 2. Get Transactions for a Wallet
+![Lionhold](renders/lionhold.jpg)
 
-**Endpoint:** `GET /transactions?address=0x613700baf1481f3781a6b3ec9e44a4585f89dfbc`
+A light-grey stone castle with four corner towers. The two towers at the back carry red pyramid
+spires about 22 cm tall. The gatehouse faces the village and has a lowered drawbridge over a moat, a
+portcullis hanging in the gate passage, and a gate room with lattice windows. Inside the walls are a
+Great Hall with a red roof and an arched entrance, a stable lean-to, and wall-walks with battlements
+all the way round. The walls mix plain and masonry-profile bricks with random dark-grey stones for a
+weathered look, and the towers use inverted slopes as corbels under their overhanging tops.
 
-**Response:**
-```json
-{
-  "transactions": [
-    {
-      "block_number": 12345678,
-      "time_stamp": "2022-01-01T12:00:00",
-      "hash": "0xabcdef...",
-      "from_addr": "0x123...",
-      "to": "0x456...",
-      "value": "1000000000000000000",
-      "gas": "21000",
-      "gas_price": "50000000000",
-      "is_error": false,
-      "function_name": "transfer(address,uint256)"
-    }
-  ],
-  "block_ranges": [
-    {
-      "start_block": 12345678,
-      "end_block": 12345700
-    }
-  ]
-}
-```
+### Book 2 · Millbrook
 
-### 3. Health Check
+![Millbrook](renders/millbrook.jpg)
 
-**Endpoint:** `GET /health`
+The village spreads over two baseplates:
 
-**Response:**
-```json
-{
-  "status": "ok"
-}
-```
+* the Miller's cottage with a thatched roof
+* the blacksmith's forge with glowing coals, anvil and a slate roof
+* *The Quarrelsome Boar* tavern
+* the woodcutter's log house
 
-## Development
+Each house has a stone or log ground floor and a jettied, timber-framed upper storey. The rest of the
+village is two market stalls with striped awnings, the village well, a fenced carrot and cabbage
+field, hay bales, trees and flowers, and the commoners' barricade in the middle of the road.
 
-- The project uses FastAPI for the API server
-- Peewee is used as the ORM for database operations
-- Database configuration is in `tres/database.py`
-- Models are defined in `tres/models.py`
-- API endpoints are defined in `tres/server.py`
-- Transaction synchronization logic is in `tres/sync.py`
-- Etherscan API client is in `tres/etherscan.py`
+### Book 3 · Ravencrag Keep
 
-## Testing
+![Ravencrag Keep](renders/ravencrag.jpg)
 
-The project includes a comprehensive test suite using pytest:
+The rival stronghold is built from dark stone with black and moss-green weathering, and has a
+different silhouette from Lionhold. A tall donjon sits on a sloped plinth, with its door raised above
+a flight of steps. Its dark-blue spire tops out at about 24 cm. The gatehouse carries two pepper-pot turrets, and
+two small corner turrets and a battlemented tower complete the walls. The courtyard holds a barracks
+with a dark-blue roof, weapon crates and barrels.
 
-```bash
-# Run all tests
-python -m pytest tests/
+### Book 4 · Warriors & Weapons
 
-# Run specific test files
-python -m pytest tests/test_etherscan.py
-python -m pytest tests/test_sync.py
-python -m pytest tests/test_server.py
+![The cast](renders/the_cast.jpg)
 
-# Run with verbose output
-python -m pytest tests/ -v
-```
+| House Aurelion (Lions) | Millbrook (common folk) | House Corvane (Ravens) |
+|---|---|---|
+| Duke Aldric Aurelion with crown, cape and greatsword | Bram the blacksmith with his hammer | Baroness Morwen Corvane with cape and longsword |
+| Sir Leofric, mounted, with couched lance | Hob the farmer with a pitchfork | Sir Mordred, mounted, with couched lance |
+| Sir Gawyn, mounted, with sword | Maud the farmwife with a shovel | Sir Corwin, mounted, with greatsword |
+| Man-at-arms, halberdier, spearman | Wat with a torch, Tom with a shovel | Axeman, swordsman, spearman |
+| Archer on the wall-walk | Guy the merchant, Agnes of the tavern | Crossbowman on the wall-walk |
+| Standard-bearer with the red and gold banner | Pip the stable boy, Ned the woodcutter | Standard-bearer with the blue and black banner |
+| 2 white battle horses with red barding | Brother Anselm, the peacemaker | 2 black battle horses with black barding |
+| Catapult | | Catapult |
 
-The tests use:
-- SQLite in-memory database for testing database operations
-- Mock Etherscan API for testing API interactions
-- FastAPI TestClient for testing HTTP endpoints
+![The clash at the barricade](renders/battle_closeup.jpg)
 
-## Database Configuration
+## Building it
 
-The project includes Docker Compose configuration for PostgreSQL:
+1. Order the parts (see below). You can buy book by book.
+2. Build the books in order: 1 Lionhold, 2 Millbrook, 3 Ravencrag, 4 Warriors. Each booklet starts
+   with a parts inventory. Every step shows the new parts in full colour, with earlier parts faded,
+   and a call-out box listing exactly what to add.
+3. Put the four baseplates in a row as in the layout above, then stage the battle using the diorama
+   renders as a guide (`renders/diorama_overhead.jpg` shows where everyone stands).
 
-- The database settings are automatically read from your `.env` file
-- The PostgreSQL container is configured to use the values from `.env`
-- Data is persisted in a Docker volume named `postgres_data`
-- The container exposes PostgreSQL on the port specified in `.env` (default: 5432)
+## Ordering the parts
 
-### Docker Commands
+Upload [`bricklink/wanted_list_complete.xml`](bricklink/wanted_list_complete.xml) at
+**BrickLink → Want → Upload**, then use **Buy All** to pick shops. The full walkthrough, the budget
+breakdown and the substitutes for a few rarer items (dark blue roof slopes, plain horse barding,
+capes) are in [`bricklink/ORDERING.md`](bricklink/ORDERING.md).
+[`bricklink/parts_list.csv`](bricklink/parts_list.csv) lists every lot with its BrickLink ID, colour,
+quantity per book and estimated price.
 
-Start the PostgreSQL container:
-```bash
-docker compose up -d postgres
-```
+Prices are **estimates** based on typical BrickLink prices. Shipping is extra (usually $20–45 when
+the order is split across a few shops).
 
-Stop the PostgreSQL container:
-```bash
-docker compose down
-```
+## The digital model
 
-View PostgreSQL logs:
-```bash
-docker compose logs postgres
-```
+* `models/1_lionhold.ldr`, `2_millbrook.ldr`, `3_ravencrag.ldr`: one file per building, with the
+  building steps.
+* `models/4_warriors.mpd`: all figures, horses and catapults lined up, each as its own sub-model.
+* `models/nobles_and_common_folk_diorama.mpd`: everything in place, battle included.
 
-Connect to PostgreSQL using psql (from inside the container):
-```bash
-docker compose exec postgres psql -U postgres -d tres_db
-```
+These are standard LDraw files. BrickLink Studio imports them directly
+(*File → Import → Import LDraw*) and can generate its own instructions and wanted list from them.
 
-VS Code debugging is configured and ready to use.
+**Viewer on your own computer:** `cd viewer && python3 -m http.server 8000`, then open
+<http://localhost:8000>. The viewer needs to be served over HTTP, because opening `index.html`
+straight from disk blocks the model download.
+
+## How it was made
+
+The set is generated by the Python code in [`tools/`](tools):
+
+* `lego.py` is a small modelling kernel. It places real LDraw parts on the stud grid, refuses
+  overlapping parts, and checks that every brick is connected to the baseplate through stud
+  connections.
+* `kit.py` holds the techniques: running-bond walls with interlocking corners, battlements,
+  corbelled tower tops, pyramid and gable roofs, and timber-framed houses.
+* `lionhold.py`, `millbrook.py`, `ravencrag.py` and `warriors.py` are the four books, and
+  `diorama.py` places everything for the battle scene.
+* `catalog.py` / `bom.py` map LDraw parts to BrickLink IDs and colours and estimate prices.
+* `instructions.py`, `booklet.py` and `render/` render every step with three.js' LDraw loader in
+  headless Chromium and lay out the PDF booklets.
+
+Part geometry comes from the [LDraw parts library](https://library.ldraw.org) (CCAL 2.0).
+
+## Notes
+
+* This is a digital design. The generator verifies collisions and stud connections, but the model
+  has not been built physically yet, so a few spots may need small tweaks. A few parts are held in
+  ways the stud checker does not model (window panes and doors in their frames, the portcullis
+  fences, barrels), so they were placed by hand.
+* Minifigure parts are listed as separate pieces (torso, arms, hands, hips and legs, head,
+  headgear). Many sellers also offer the torso ready assembled with arms and hands.
+* LEGO® is a trademark of the LEGO Group, which does not sponsor, authorise or endorse this fan
+  design.

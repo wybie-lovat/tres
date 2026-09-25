@@ -1,0 +1,204 @@
+{
+  "lionhold": {
+    "title": "Lionhold",
+    "pieces": 1263,
+    "lots": 60,
+    "est_usd": 118.63
+  },
+  "millbrook": {
+    "title": "Millbrook",
+    "pieces": 872,
+    "lots": 114,
+    "est_usd": 108.37
+  },
+  "ravencrag": {
+    "title": "Ravencrag Keep",
+    "pieces": 1094,
+    "lots": 76,
+    "est_usd": 113.33
+  },
+  "warriors": {
+    "title": "Warriors & Weapons",
+    "pieces": 299,
+    "lots": 110,
+    "est_usd": 89.3
+  },
+  "total": {
+    "title": "Complete set",
+    "pieces": 3528,
+    "lots": 293,
+    "est_usd": 429.64
+  },
+  "figures": 26,
+  "horses": 4,
+  "verify": [
+    {
+      "bl": "2490",
+      "color": "Black",
+      "qty": 2,
+      "note": "Horse Barding (plain) - optional decoration, skip if not available in this colour"
+    },
+    {
+      "bl": "2490",
+      "color": "Red",
+      "qty": 2,
+      "note": "Horse Barding (plain) - optional decoration, skip if not available in this colour"
+    },
+    {
+      "bl": "4495b",
+      "color": "Dark Blue",
+      "qty": 6,
+      "note": "Flag 4 x 1 Wave Right - if not found search \"Flag 4 x 1 Wave\""
+    },
+    {
+      "bl": "4495b",
+      "color": "Red",
+      "qty": 4,
+      "note": "Flag 4 x 1 Wave Right - if not found search \"Flag 4 x 1 Wave\""
+    },
+    {
+      "bl": "4495b",
+      "color": "Yellow",
+      "qty": 2,
+      "note": "Flag 4 x 1 Wave Right - if not found search \"Flag 4 x 1 Wave\""
+    },
+    {
+      "bl": "2587",
+      "color": "Light Bluish Gray",
+      "qty": 1,
+      "note": "Flat Silver also works"
+    },
+    {
+      "bl": "4524",
+      "color": "Black",
+      "qty": 2,
+      "note": "Minifig Cape (plastic) - any cape works (cloth cape 522 is a fine substitute)"
+    },
+    {
+      "bl": "30167",
+      "color": "Tan",
+      "qty": 1,
+      "note": "Hat, Wide Brim Flat - any peasant hat works"
+    },
+    {
+      "bl": "4503",
+      "color": "Flat Silver",
+      "qty": 2,
+      "note": "Light Bluish Gray also works"
+    },
+    {
+      "bl": "6123",
+      "color": "Flat Silver",
+      "qty": 1,
+      "note": "Halberd - any pole arm works"
+    },
+    {
+      "bl": "973",
+      "color": "Black",
+      "qty": 2,
+      "note": "Torso without arms - alternatively buy a plain torso with arms and hands assembled"
+    },
+    {
+      "bl": "973",
+      "color": "Dark Blue",
+      "qty": 6,
+      "note": "Torso without arms - alternatively buy a plain torso with arms and hands assembled"
+    },
+    {
+      "bl": "973",
+      "color": "Dark Green",
+      "qty": 1,
+      "note": "Torso without arms - alternatively buy a plain torso with arms and hands assembled"
+    },
+    {
+      "bl": "973",
+      "color": "Dark Red",
+      "qty": 1,
+      "note": "Torso without arms - alternatively buy a plain torso with arms and hands assembled"
+    },
+    {
+      "bl": "973",
+      "color": "Dark Tan",
+      "qty": 1,
+      "note": "Torso without arms - alternatively buy a plain torso with arms and hands assembled"
+    },
+    {
+      "bl": "973",
+      "color": "Olive Green",
+      "qty": 1,
+      "note": "Torso without arms - alternatively buy a plain torso with arms and hands assembled"
+    },
+    {
+      "bl": "973",
+      "color": "Red",
+      "qty": 7,
+      "note": "Torso without arms - alternatively buy a plain torso with arms and hands assembled"
+    },
+    {
+      "bl": "973",
+      "color": "Reddish Brown",
+      "qty": 2,
+      "note": "Torso without arms - alternatively buy a plain torso with arms and hands assembled"
+    },
+    {
+      "bl": "973",
+      "color": "Sand Green",
+      "qty": 1,
+      "note": "Torso without arms - alternatively buy a plain torso with arms and hands assembled"
+    },
+    {
+      "bl": "973",
+      "color": "Tan",
+      "qty": 2,
+      "note": "Torso without arms - alternatively buy a plain torso with arms and hands assembled"
+    },
+    {
+      "bl": "973",
+      "color": "White",
+      "qty": 2,
+      "note": "Torso without arms - alternatively buy a plain torso with arms and hands assembled"
+    },
+    {
+      "bl": "2435",
+      "color": "Dark Green",
+      "qty": 2,
+      "note": "Green also works"
+    },
+    {
+      "bl": "3039",
+      "color": "Dark Blue",
+      "qty": 20,
+      "note": "see Dark Blue roof note"
+    },
+    {
+      "bl": "3043",
+      "color": "Dark Red",
+      "qty": 12,
+      "note": "Red also works"
+    },
+    {
+      "bl": "3045",
+      "color": "Dark Blue",
+      "qty": 32,
+      "note": "Dark Blue roof parts may be scarce - Blue or Black work too (change all roof parts together)"
+    },
+    {
+      "bl": "3037",
+      "color": "Dark Blue",
+      "qty": 16,
+      "note": "see Dark Blue roof note"
+    },
+    {
+      "bl": "3688",
+      "color": "Dark Blue",
+      "qty": 5,
+      "note": "see Dark Blue roof note"
+    },
+    {
+      "bl": "3688",
+      "color": "Red",
+      "qty": 2,
+      "note": "Red spire - Dark Red also works"
+    }
+  ]
+}

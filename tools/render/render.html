@@ -1,0 +1,174 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#fff;overflow:hidden}</style>
+<script type="importmap">{"imports":{"three":"/three/build/three.module.js","three/addons/":"/three/examples/jsm/"}}</script>
+</head><body>
+<script type="module">
+import * as THREE from 'three';
+import { LDrawLoader } from 'three/addons/loaders/LDrawLoader.js';
+import { LDrawConditionalLineMaterial } from 'three/addons/materials/LDrawConditionalLineMaterial.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const W = window.RW || 1200, H = window.RH || 900;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });
+renderer.setPixelRatio(1);
+renderer.setSize(W, H);
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.toneMappingExposure = 1.0;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.55;
+const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+sun.position.set(-0.6, 1.0, -0.4);  // LDraw: -Y is up; we flip the model below
+scene.add(sun);
+scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+window.setLights = (env, sunI, amb, exp) => { scene.environmentIntensity = env; sun.intensity = sunI; scene.children.filter(c=>c.isAmbientLight).forEach(a=>a.intensity=amb); renderer.toneMappingExposure = exp; };
+
+const camera = new THREE.PerspectiveCamera(30, W / H, 1, 100000);
+
+const loader = new LDrawLoader();
+loader.setConditionalLineMaterial(LDrawConditionalLineMaterial);
+loader.setPartsLibraryPath('/ldraw/');
+loader.smoothNormals = true;
+let materialsReady = null;
+window.setFileMap = async (url) => { const r = await fetch(url); loader.setFileMap(await r.json()); };
+const origFetch = loader.partsCache.parseCache.fetchData.bind(loader.partsCache.parseCache);
+loader.partsCache.parseCache.fetchData = async (fileName) => {
+  if (/^(parts|p|models)\//.test(fileName)) {
+    const r = await fetch(loader.partsLibraryPath + fileName);
+    if (r.ok) return await r.text();
+  }
+  return origFetch(fileName);
+};
+
+let model = null;
+const origMat = new Map();
+
+window.loadModel = async (url) => {
+  if (!materialsReady) materialsReady = Promise.all([loader.preloadMaterials('/ldraw/LDConfig.ldr'), window.setFileMap('/filemap.json')]);
+  await materialsReady;
+  if (model) { scene.remove(model); }
+  model = await loader.loadAsync(url);
+  model.rotation.x = Math.PI;          // LDraw Y-down -> three Y-up
+  model.traverse(o => {
+    const ms = Array.isArray(o.material) ? o.material : (o.material ? [o.material] : []);
+    ms.forEach(mt => { if (mt.isMeshStandardMaterial && !mt.userData.tuned) {
+      if (mt.metalness < 0.3) mt.roughness = Math.max(mt.roughness, window.ROUGH || 0.7);
+      mt.userData.tuned = true; } });
+  });
+  scene.add(model);
+  model.updateMatrixWorld(true);
+  return model.children.length;
+};
+
+// highlight: fade previous-step parts so the new parts stand out
+const fadeCache = new Map();
+function fadedMaterial(m) {
+  if (fadeCache.has(m)) return fadeCache.get(m);
+  if (!(m.isMeshStandardMaterial || m.isLineBasicMaterial)) { fadeCache.set(m, m); return m; }
+  const f = m.clone();
+  if (m.userData) f.userData = m.userData;
+  f.color.lerp(new THREE.Color(0xffffff), m.isLineBasicMaterial ? 0.6 : 0.5);
+  fadeCache.set(m, f);
+  return f;
+}
+function setFaded(obj, faded) {
+  obj.traverse(o => {
+    if (!o.material) return;
+    if (!origMat.has(o)) origMat.set(o, o.material);
+    const base = origMat.get(o);
+    o.material = faded ? (Array.isArray(base) ? base.map(fadedMaterial) : fadedMaterial(base)) : base;
+  });
+}
+
+// steps: array with step index for each top-level child (same order as the file's type-1 lines)
+window.showStep = (steps, k, mode) => {
+  const kids = model.children;
+  for (let i = 0; i < kids.length; i++) {
+    const s = steps[i];
+    kids[i].visible = s <= k;
+    setFaded(kids[i], mode === 'fade' && s < k);
+  }
+};
+window.showAll = () => { model.children.forEach(c => { c.visible = true; setFaded(c, false); }); };
+window.showOnly = (idxs) => { const set = new Set(idxs); model.children.forEach((c, i) => { c.visible = set.has(i); setFaded(c, false); }); };
+
+function visibleBox(filter, includeHidden) {
+  const box = new THREE.Box3();
+  model.updateMatrixWorld(true);
+  model.children.forEach((c, i) => { if ((c.visible || includeHidden) && (!filter || filter(i))) box.expandByObject(c); });
+  return box;
+}
+
+// yaw/pitch in degrees; yaw 0 looks from the front (LDraw -Z side)
+window.frame = (yaw = 35, pitch = 30, pad = 1.08, focusIdx = null, fov = 30, includeHidden = false) => {
+  camera.fov = fov; camera.updateProjectionMatrix();
+  let box;
+  if (focusIdx) { const fs = new Set(focusIdx); box = visibleBox(i => fs.has(i), includeHidden); }
+  else box = visibleBox();
+  const sphere = box.getBoundingSphere(new THREE.Sphere());
+  const y = THREE.MathUtils.degToRad(yaw), p = THREE.MathUtils.degToRad(pitch);
+  // model flipped: LDraw -Z (front) becomes +Z in three
+  const dir = new THREE.Vector3(Math.sin(y) * Math.cos(p), Math.sin(p), Math.cos(y) * Math.cos(p));
+  // fit bounding box corners in view
+  const corners = [];
+  for (const x of [box.min.x, box.max.x]) for (const yy of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) corners.push(new THREE.Vector3(x, yy, z));
+  const center = sphere.center;
+  let dist = sphere.radius * 3;
+  camera.position.copy(center).addScaledVector(dir, dist);
+  camera.lookAt(center);
+  camera.updateMatrixWorld();
+  // iterate to fit tightly
+  for (let it = 0; it < 6; it++) {
+    let maxx = 0, maxy = 0;
+    const view = camera.matrixWorldInverse;
+    for (const c of corners) {
+      const v = c.clone().applyMatrix4(view);
+      const d = -v.z;
+      maxx = Math.max(maxx, Math.abs(v.x) / d);
+      maxy = Math.max(maxy, Math.abs(v.y) / d);
+    }
+    const tanV = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    const tanH = tanV * camera.aspect;
+    const s = Math.max(maxx / tanH, maxy / tanV) * pad;
+    dist *= s;
+    camera.position.copy(center).addScaledVector(dir, dist);
+    camera.lookAt(center);
+    camera.updateMatrixWorld();
+  }
+  camera.near = dist / 50; camera.far = dist * 10; camera.updateProjectionMatrix();
+  sun.position.copy(center).add(new THREE.Vector3(-0.5, 1.0, 0.6).multiplyScalar(sphere.radius * 4));
+  sun.target.position.copy(center); sun.target.updateMatrixWorld();
+};
+
+window.projectBox = (idxs) => {
+  const box = visibleBox(i => idxs.includes(i));
+  const pts = [];
+  for (const x of [box.min.x, box.max.x]) for (const yy of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) pts.push(new THREE.Vector3(x, yy, z).project(camera));
+  const xs = pts.map(p => (p.x + 1) / 2 * W), ys = pts.map(p => (1 - p.y) / 2 * H);
+  return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+};
+
+window.setSize = (w, h) => { renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); };
+window.setBackground = (c) => { scene.background = c === null ? null : new THREE.Color(c); };
+window.renderPNG = (fmt) => { renderer.render(scene, camera); return fmt === 'jpg' ? renderer.domElement.toDataURL('image/jpeg', 0.88) : renderer.domElement.toDataURL('image/png'); };
+window.showSteps = (steps, k, only) => {  // show parts whose step <= k, restricted to index list `only`
+  const set = new Set(only); const kids = model.children;
+  for (let i = 0; i < kids.length; i++) { const s = steps[i]; kids[i].visible = set.has(i) && s <= k; setFaded(kids[i], s < k); }
+};
+window.enableShadows = (on) => {
+  renderer.shadowMap.enabled = on; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  sun.castShadow = on; sun.shadow.mapSize.set(4096, 4096);
+  model.traverse(o => { if (o.isMesh) { o.castShadow = on; o.receiveShadow = on; } });
+  const box = new THREE.Box3().setFromObject(model); const sph = box.getBoundingSphere(new THREE.Sphere());
+  const cam = sun.shadow.camera; const r = sph.radius * 1.05;
+  cam.left = -r; cam.right = r; cam.top = r; cam.bottom = -r; cam.near = 1; cam.far = sph.radius * 12; cam.updateProjectionMatrix();
+  sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.6;
+  model.traverse(o => { const ms = Array.isArray(o.material) ? o.material : (o.material ? [o.material] : []); ms.forEach(mt => mt.needsUpdate = true); });
+};
+window.READY = true;
+</script>
+</body></html>

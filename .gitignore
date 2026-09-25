@@ -1,2 +1,5 @@
-venv
-.env
+# intermediate render output (regenerate with tools/build_all.sh)
+build/
+__pycache__/
+*.pyc
+node_modules/

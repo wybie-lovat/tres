@@ -1,0 +1,313 @@
+<title>Nobles &amp; Common Folk at Quarrel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@500;700&family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
+<style>
+:root {
+  --ground: #e9ecef; --paper: #f7f8f9; --ink: #1b2a34; --muted: #56626b; --line: #cfd5da;
+  --gules: #b40000; --azure: #19325a; --vert: #2f6b2a; --or: #b8901c; --stage: #dde2e6;
+  --stage-2: #f3f5f6; --chip: #ffffff; --focus: #b8901c;
+  --display: 'Grenze Gotisch', 'UnifrakturCook', Georgia, serif;
+  --body: 'Barlow', 'Segoe UI', system-ui, sans-serif;
+  --ui: 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground: #12161c; --paper: #1a2029; --ink: #e6e9ec; --muted: #9aa5ae; --line: #2c3540;
+    --gules: #e0413b; --azure: #7d9ccf; --vert: #6fae62; --or: #d9b24a; --stage: #1c232c;
+    --stage-2: #28313c; --chip: #222a34; --focus: #d9b24a;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: #12161c; --paper: #1a2029; --ink: #e6e9ec; --muted: #9aa5ae; --line: #2c3540;
+  --gules: #e0413b; --azure: #7d9ccf; --vert: #6fae62; --or: #d9b24a; --stage: #1c232c;
+  --stage-2: #28313c; --chip: #222a34; --focus: #d9b24a;
+}
+* { box-sizing: border-box; }
+body { background: var(--ground); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5;
+       padding-inline: clamp(16px, 4vw, 48px); padding-block: 28px 56px; }
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 40px; }
+header { display: grid; gap: 6px; }
+.eyebrow { font-family: var(--ui); font-weight: 600; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(40px, 7vw, 76px); line-height: .95; margin: 0; text-wrap: balance; }
+h1 .amp { color: var(--or); }
+h1 .lion { color: var(--gules); } h1 .folk { color: var(--vert); }
+.lede { max-width: 64ch; color: var(--muted); margin: 6px 0 0; font-size: 17px; }
+h2 { font-family: var(--display); font-weight: 700; font-size: 34px; line-height: 1; margin: 0 0 14px; }
+
+/* stage */
+.stage { display: grid; gap: 12px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tab { font-family: var(--ui); font-weight: 600; font-size: 15px; letter-spacing: .02em; padding: 7px 14px; border-radius: 4px;
+       border: 1px solid var(--line); background: var(--chip); color: var(--ink); cursor: pointer; }
+.tab[aria-pressed="true"] { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+.tab .dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; vertical-align: 1px; }
+.tab:focus-visible, .ctl:focus-visible, input[type=range]:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.viewport { position: relative; aspect-ratio: 16 / 8.2; max-width: 100%; border-radius: 6px; overflow: hidden;
+            background: radial-gradient(120% 90% at 50% 20%, var(--stage-2), var(--stage)); border: 1px solid var(--line); }
+@media (max-width: 700px) { .viewport { aspect-ratio: 4 / 3.4; } }
+.viewport canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.viewport img.poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.status { position: absolute; left: 12px; bottom: 10px; font-family: var(--ui); font-size: 14px; color: var(--muted);
+          background: color-mix(in srgb, var(--paper) 85%, transparent); padding: 4px 10px; border-radius: 4px; }
+.hint { position: absolute; right: 12px; bottom: 10px; font-family: var(--ui); font-size: 13px; color: var(--muted); }
+.stepbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 10px 12px; background: var(--paper);
+           border: 1px solid var(--line); border-radius: 6px; }
+.stepbox { font-family: var(--ui); font-weight: 700; font-variant-numeric: tabular-nums; font-size: 26px; line-height: 1;
+           border: 2px solid var(--ink); border-radius: 4px; padding: 5px 10px; min-width: 104px; text-align: center; }
+.stepbox small { font-size: 14px; color: var(--muted); font-weight: 600; }
+.ctl { font-family: var(--ui); font-weight: 600; font-size: 15px; border: 1px solid var(--line); background: var(--chip); color: var(--ink);
+       border-radius: 4px; padding: 7px 12px; cursor: pointer; }
+.secname { flex: 1 1 220px; min-width: 0; }
+.secname b { display: block; font-family: var(--ui); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.secname span { font-weight: 600; }
+input[type=range] { flex: 1 1 260px; accent-color: var(--or); }
+.stepbar[data-mode="static"] .stepctl { display: none; }
+.stepbar[data-mode="static"] .secname span::after { content: ''; }
+
+/* sheet */
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; align-items: start; }
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 15px; }
+th { font-family: var(--ui); font-weight: 600; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 6px 8px; border-bottom: 2px solid var(--ink); }
+td { padding: 8px; border-bottom: 1px solid var(--line); }
+td.n, th.n { text-align: right; }
+tr.total td { font-weight: 700; border-bottom: 0; border-top: 2px solid var(--ink); }
+.note { color: var(--muted); font-size: 14px; max-width: 64ch; margin: 10px 0 0; }
+.book { font-family: var(--ui); font-weight: 700; color: var(--muted); margin-right: 6px; }
+
+.cast { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 24px; }
+.house h3 { font-family: var(--display); font-size: 26px; margin: 0 0 2px; font-weight: 700; }
+.house .motto { font-family: var(--ui); font-size: 14px; color: var(--muted); margin: 0 0 10px; }
+.house ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.house li { padding-left: 14px; position: relative; font-size: 15px; }
+.house li::before { content: ''; position: absolute; left: 0; top: .55em; width: 7px; height: 7px; border-radius: 1px; background: var(--c); }
+.lions { --c: var(--gules); } .lions h3 { color: var(--gules); }
+.ravens { --c: var(--azure); } .ravens h3 { color: var(--azure); }
+.folk { --c: var(--vert); } .folk h3 { color: var(--vert); }
+
+ol.howto { margin: 0; padding-left: 22px; display: grid; gap: 8px; max-width: 70ch; }
+code { font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace; font-size: .9em; background: var(--paper); border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; }
+footer { color: var(--muted); font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">A brick-built diorama in four books · 3,528 pieces · 26 minifigures · 4 horses</div>
+    <h1><span class="lion">Nobles</span> <span class="amp">&amp;</span> <span class="folk">Common Folk</span> at Quarrel</h1>
+    <p class="lede">The Crimson Lions of Lionhold and the Black Ravens of Ravencrag have marched on each other along the only road through Millbrook. The villagers have barricaded it with barrels, crates and logs and refuse to move. Turn the model, then scrub through every building step.</p>
+  </header>
+
+  <section class="stage" aria-label="3D model viewer">
+    <div class="tabs" role="toolbar" aria-label="Choose a model">
+      <button class="tab" id="tab-diorama" data-view="diorama" aria-pressed="true"><span class="dot" style="background:var(--or)"></span>Whole diorama</button>
+      <button class="tab" id="tab-lionhold" data-view="lionhold" aria-pressed="false"><span class="dot" style="background:var(--gules)"></span>Book 1 · Lionhold</button>
+      <button class="tab" id="tab-millbrook" data-view="millbrook" aria-pressed="false"><span class="dot" style="background:var(--vert)"></span>Book 2 · Millbrook</button>
+      <button class="tab" id="tab-ravencrag" data-view="ravencrag" aria-pressed="false"><span class="dot" style="background:var(--azure)"></span>Book 3 · Ravencrag</button>
+      <button class="tab" id="tab-lineup" data-view="lineup" aria-pressed="false"><span class="dot" style="background:var(--ink)"></span>Book 4 · The cast</button>
+    </div>
+    <div class="viewport" id="viewport">
+      <img class="poster" id="poster" src="poster.jpg" alt="Render of the full diorama: Lionhold with red spires on the left, Millbrook village in the middle, dark-stone Ravencrag with blue spires on the right">
+      <div class="status" id="status" role="status">Loading 3D model…</div>
+      <div class="hint">Drag to turn · scroll or pinch to zoom</div>
+    </div>
+    <div class="stepbar" id="stepbar" data-mode="static">
+      <div class="stepbox stepctl" id="stepbox">1 <small>/ 1</small></div>
+      <button class="ctl stepctl" id="prev" aria-label="Previous step">◀</button>
+      <button class="ctl stepctl" id="next" aria-label="Next step">▶</button>
+      <button class="ctl stepctl" id="play">Build it</button>
+      <input class="stepctl" type="range" id="scrub" min="0" max="0" value="0" aria-label="Building step">
+      <div class="secname"><b id="seclabel">Showing</b><span id="secname">The whole diorama, battle in progress</span></div>
+    </div>
+  </section>
+
+  <section class="cols">
+    <div>
+      <h2>Set sheet</h2>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Book</th><th class="n">Pieces</th><th class="n">Steps</th><th class="n">Parts cost*</th></tr></thead>
+          <tbody><tr><td><span class="book">1</span>Lionhold</td><td class="n">1,263</td><td class="n">110</td><td class="n">$118.63</td></tr>
+<tr><td><span class="book">2</span>Millbrook</td><td class="n">872</td><td class="n">72</td><td class="n">$108.37</td></tr>
+<tr><td><span class="book">3</span>Ravencrag Keep</td><td class="n">1,094</td><td class="n">46</td><td class="n">$113.33</td></tr>
+<tr><td><span class="book">4</span>Warriors &amp; Weapons</td><td class="n">299</td><td class="n"></td><td class="n">$89.30</td></tr>
+<tr class="total"><td>Complete set</td><td class="n">3,528</td><td class="n">228</td><td class="n">$429.64</td></tr></tbody>
+        </table>
+      </div>
+      <p class="note">*Estimated BrickLink prices (mixed new/used, USD), shipping not included. The target budget is about $500, so roughly $70 is left for price swings and shipping. Footprint: four 32×32 baseplates in a row, 128 × 32 studs (about 102 × 26 cm).</p>
+    </div>
+    <div>
+      <h2>Ordering the parts</h2>
+      <ol class="howto">
+        <li>On BrickLink, open <b>Wanted → Upload</b> and paste <code>bricklink/wanted_list_complete.xml</code>. Use the per-book files to buy one model at a time.</li>
+        <li>Open the new list and press <b>Buy All</b>. Let BrickLink pick the fewest shops, condition <b>Any</b>.</li>
+        <li>Check the items marked in <code>parts_list.csv</code> (dark blue roof parts, plain horse barding, cape). Each note names a substitute colour or part.</li>
+        <li>Build from the PDFs in <code>instructions/</code>, in book order. <code>models/</code> opens in BrickLink Studio, LeoCAD or LDCad.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <h2>The cast</h2>
+    <div class="cast"><div class="house lions"><h3>House Aurelion</h3><p class="motto">The Crimson Lions of Lionhold</p><ul><li>Duke Aldric Aurelion, Lord of Lionhold</li><li>Sir Leofric, knight of the Lion (mounted)</li><li>Sir Gawyn, knight of the Lion (mounted)</li><li>Lion man-at-arms with sword</li><li>Lion halberdier</li><li>Lion spearman</li><li>Lion archer</li><li>Lion standard-bearer</li><li>2 armoured battle horses</li><li>A catapult</li></ul></div>
+<div class="house folk"><h3>Millbrook</h3><p class="motto">The common folk and their barricade</p><ul><li>Bram the blacksmith</li><li>Hob the farmer</li><li>Maud the farmwife</li><li>Wat with a torch</li><li>Tom with a shovel</li><li>Guy the merchant</li><li>Agnes of the Quarrelsome Boar</li><li>Pip the stable boy</li><li>Brother Anselm, the peacemaker</li><li>Ned the woodcutter</li></ul></div>
+<div class="house ravens"><h3>House Corvane</h3><p class="motto">The Black Ravens of Ravencrag</p><ul><li>Baroness Morwen Corvane, Lady of Ravencrag</li><li>Sir Mordred, Raven knight (mounted)</li><li>Sir Corwin, Raven knight (mounted)</li><li>Raven axeman</li><li>Raven swordsman</li><li>Raven spearman</li><li>Raven crossbowman</li><li>Raven standard-bearer</li><li>2 armoured battle horses</li><li>A catapult</li></ul></div></div>
+  </section>
+
+  <footer>Models are generated as LDraw files and checked for collisions and stud connections. Geometry from the LDraw parts library (CCAL 2.0). LEGO is a trademark of the LEGO Group, which does not sponsor this fan design.</footer>
+</div>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { LDrawLoader } from 'three/addons/loaders/LDrawLoader.js';
+import { LDrawConditionalLineMaterial } from 'three/addons/materials/LDrawConditionalLineMaterial.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { LDrawUtils } from 'three/addons/utils/LDrawUtils.js';
+
+const $ = (id) => document.getElementById(id);
+const vp = $('viewport'), status = $('status');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.toneMapping = THREE.NeutralToneMapping;
+vp.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.55;
+const sun = new THREE.DirectionalLight(0xffffff, 1.6); scene.add(sun); scene.add(sun.target);
+scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+const camera = new THREE.PerspectiveCamera(30, 2, 1, 200000);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.maxPolarAngle = Math.PI * 0.49;
+
+function resize() {
+  const r = vp.getBoundingClientRect();
+  renderer.setSize(r.width, r.height, false);
+  camera.aspect = r.width / Math.max(1, r.height); camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(vp); resize();
+
+const loader = new LDrawLoader();
+loader.setConditionalLineMaterial(LDrawConditionalLineMaterial);
+loader.smoothNormals = true;
+
+let data = null, current = null, stepTimer = null;
+const views = {};
+const texts = { diorama: 'The whole diorama, battle in progress', lineup: 'All 26 minifigures, 4 horses and 2 catapults' };
+
+function parse(text) { return new Promise((res, rej) => loader.parse(text, res, rej)); }
+
+function tune(obj) {
+  obj.traverse(o => {
+    const ms = Array.isArray(o.material) ? o.material : (o.material ? [o.material] : []);
+    ms.forEach(m => { if (m.isMeshStandardMaterial && !m.userData.tuned) { if (m.metalness < 0.3) m.roughness = Math.max(m.roughness, 0.7); m.userData.tuned = true; } });
+  });
+}
+
+async function build(name) {
+  if (views[name]) return views[name];
+  const g = await parse(`0 FILE view_${name}.ldr\n0 !LDRAW_ORG Model\n1 16 0 0 0 1 0 0 0 1 0 0 0 1 ${name}.ldr\n`);
+  let root = g;
+  if (name === 'diorama') root = LDrawUtils.mergeObject(g);
+  root.rotation.x = Math.PI;
+  tune(root);
+  const parts = name === 'diorama' ? [] : g.children[0].children;
+  const box = new THREE.Box3().setFromObject(root);
+  views[name] = { root, parts, box };
+  return views[name];
+}
+
+function frame(box, yaw = 30, pitch = 28) {
+  const sph = box.getBoundingSphere(new THREE.Sphere());
+  const y = THREE.MathUtils.degToRad(yaw), p = THREE.MathUtils.degToRad(pitch);
+  const dir = new THREE.Vector3(Math.sin(y) * Math.cos(p), Math.sin(p), Math.cos(y) * Math.cos(p));
+  const fit = sph.radius / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) / Math.min(1, camera.aspect * 0.9);
+  camera.position.copy(sph.center).addScaledVector(dir, fit * 0.92);
+  camera.near = fit / 100; camera.far = fit * 20; camera.updateProjectionMatrix();
+  controls.target.copy(sph.center); controls.update();
+  sun.position.copy(sph.center).add(new THREE.Vector3(-0.5, 1, 0.6).multiplyScalar(sph.radius * 4));
+  sun.target.position.copy(sph.center);
+}
+
+function setStep(k) {
+  const v = views[current], d = data[current];
+  if (!d || !d.steps) return;
+  k = Math.max(0, Math.min(d.n - 1, k));
+  for (let i = 0; i < v.parts.length; i++) v.parts[i].visible = d.steps[i] <= k;
+  const last = Math.max(...d.steps);
+  $('scrub').value = k;
+  $('stepbox').innerHTML = `${k + 1} <small>/ ${last + 1}</small>`;
+  let sec = d.sections[0][0];
+  for (const [n, s] of d.sections) if (s <= k) sec = n;
+  $('secname').textContent = sec;
+}
+
+function stopPlay() { if (stepTimer) { clearInterval(stepTimer); stepTimer = null; $('play').textContent = 'Build it'; } }
+
+async function show(name) {
+  stopPlay();
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-pressed', b.dataset.view === name ? 'true' : 'false'));
+  status.hidden = false; status.textContent = 'Building ' + (name === 'lineup' ? 'the cast' : name) + '…';
+  await new Promise(r => setTimeout(r, 30));
+  const v = await build(name);
+  Object.values(views).forEach(o => { if (o.root.parent) scene.remove(o.root); });
+  scene.add(v.root);
+  current = name;
+  const d = data[name];
+  const bar = $('stepbar');
+  if (d && d.steps) {
+    bar.dataset.mode = 'steps';
+    const last = Math.max(...d.steps);
+    $('scrub').max = last;
+    $('seclabel').textContent = 'Section';
+    setStep(last);
+  } else {
+    bar.dataset.mode = 'static';
+    $('seclabel').textContent = 'Showing';
+    $('secname').textContent = texts[name] || name;
+  }
+  frame(v.box, name === 'lineup' ? 8 : 30, name === 'lineup' ? 14 : name === 'diorama' ? 26 : 30);
+  status.hidden = true;
+  $('poster').hidden = true;
+  try { history.replaceState(null, '', '#' + name); } catch (e) {}
+}
+
+document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => show(b.dataset.view)));
+$('scrub').addEventListener('input', e => { stopPlay(); setStep(+e.target.value); });
+$('prev').addEventListener('click', () => { stopPlay(); setStep(+$('scrub').value - 1); });
+$('next').addEventListener('click', () => { stopPlay(); setStep(+$('scrub').value + 1); });
+$('play').addEventListener('click', () => {
+  if (stepTimer) return stopPlay();
+  const d = data[current]; if (!d || !d.steps) return;
+  let k = +$('scrub').value; const last = Math.max(...d.steps);
+  if (k >= last) k = -1;
+  $('play').textContent = 'Pause';
+  stepTimer = setInterval(() => { k++; setStep(k); if (k >= last) stopPlay(); }, 380);
+});
+
+function loop() { controls.update(); renderer.render(scene, camera); requestAnimationFrame(loop); }
+
+(async () => {
+  try {
+    status.textContent = 'Loading parts library (3 MB)…';
+    const [d, pack] = await Promise.all([
+      fetch('viewer_data.json').then(r => r.json()),
+      fetch('nobles_pack.mpd').then(r => { if (!r.ok) throw new Error('pack ' + r.status); return r.text(); }),
+      loader.preloadMaterials('LDConfig.ldr'),
+    ]);
+    data = d;
+    status.textContent = 'Reading 385 LDraw part files…';
+    await parse(pack);
+    loop();
+    const start = (location.hash || '').replace('#', '');
+    await show(['diorama', 'lionhold', 'millbrook', 'ravencrag', 'lineup'].includes(start) ? start : 'diorama');
+  } catch (e) {
+    status.textContent = 'The 3D model could not load (' + e.message + '). The render above shows the finished diorama.';
+  }
+})();
+</script>
