@@ -161,12 +161,11 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { LDrawLoader } from 'three/addons/loaders/LDrawLoader.js';
 import { LDrawConditionalLineMaterial } from 'three/addons/materials/LDrawConditionalLineMaterial.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { LDrawUtils } from 'three/addons/utils/LDrawUtils.js';
 
 const $ = (id) => document.getElementById(id);
 const vp = $('viewport'), status = $('status');
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
 renderer.toneMapping = THREE.NeutralToneMapping;
 vp.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
@@ -179,12 +178,29 @@ const camera = new THREE.PerspectiveCamera(30, 2, 1, 200000);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; controls.maxPolarAngle = Math.PI * 0.49;
 
+// Render only when something changed: keeps the GPU idle while nobody touches the model.
+let dirty = true;
+const requestRender = () => { dirty = true; };
+controls.addEventListener('change', requestRender);
+function loop() {
+  requestAnimationFrame(loop);
+  controls.update();
+  if (dirty) { dirty = false; renderer.render(scene, camera); }
+}
+
 function resize() {
   const r = vp.getBoundingClientRect();
   renderer.setSize(r.width, r.height, false);
   camera.aspect = r.width / Math.max(1, r.height); camera.updateProjectionMatrix();
+  requestRender();
 }
 new ResizeObserver(resize).observe(vp); resize();
+
+renderer.domElement.addEventListener('webglcontextlost', (e) => {
+  e.preventDefault();
+  status.hidden = false; $('poster').hidden = false;
+  status.textContent = 'The browser ran out of graphics memory. The render above shows the finished diorama; reload to try again.';
+});
 
 const loader = new LDrawLoader();
 loader.setConditionalLineMaterial(LDrawConditionalLineMaterial);
@@ -196,23 +212,84 @@ const texts = { diorama: 'The whole diorama, battle in progress', lineup: 'All 2
 
 function parse(text) { return new Promise((res, rej) => loader.parse(text, res, rej)); }
 
-function tune(obj) {
-  obj.traverse(o => {
-    const ms = Array.isArray(o.material) ? o.material : (o.material ? [o.material] : []);
-    ms.forEach(m => { if (m.isMeshStandardMaterial && !m.userData.tuned) { if (m.metalness < 0.3) m.roughness = Math.max(m.roughness, 0.7); m.userData.tuned = true; } });
-  });
+function tune(m) {
+  if (m.isMeshStandardMaterial && !m.userData.tuned) { if (m.metalness < 0.3) m.roughness = Math.max(m.roughness, 0.7); m.userData.tuned = true; }
+}
+
+function upperBound(sorted, k) {           // number of entries <= k in a sorted array
+  let lo = 0, hi = sorted.length;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (sorted[mid] <= k) lo = mid + 1; else hi = mid; }
+  return lo;
+}
+
+// Convert a loaded LDraw group into a light-weight view:
+//  - every repeated part (same geometry + colours) becomes ONE InstancedMesh
+//  - all edge lines of one colour are baked into ONE LineSegments buffer
+//  - conditional (silhouette) lines are dropped
+// Instances and line chunks are sorted by building step, so a step is shown by
+// changing an instance count / draw range instead of toggling thousands of objects.
+function instanced(group, stepOf) {
+  group.updateMatrixWorld(true);
+  const items = stepOf ? group.children[0].children.map((p, i) => [p, stepOf(i)]) : [[group, 0]];
+  const meshBins = new Map(), lineBins = new Map();
+  const v = new THREE.Vector3();
+  const addLines = (mat, pos, start, count, mw, s) => {
+    let b = lineBins.get(mat.uuid);
+    if (!b) lineBins.set(mat.uuid, b = { mat, chunks: [], n: 0 });
+    const arr = new Float32Array(count * 3);
+    for (let k = 0; k < count; k++) { v.fromBufferAttribute(pos, start + k).applyMatrix4(mw); arr[3 * k] = v.x; arr[3 * k + 1] = v.y; arr[3 * k + 2] = v.z; }
+    b.chunks.push({ s, arr }); b.n += count;
+  };
+  for (const [part, s] of items) {
+    part.traverse(o => {
+      if (o.isConditionalLine) return;
+      if (o.isMesh) {
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        const key = o.geometry.uuid + ':' + mats.map(m => m.uuid).join(',');
+        let b = meshBins.get(key);
+        if (!b) meshBins.set(key, b = { geometry: o.geometry, material: o.material, items: [] });
+        b.items.push({ s, m: o.matrixWorld.clone() });
+      } else if (o.isLineSegments) {
+        const pos = o.geometry.attributes.position;
+        if (Array.isArray(o.material)) {
+          for (const g of o.geometry.groups) addLines(o.material[g.materialIndex], pos, g.start, g.count, o.matrixWorld, s);
+        } else addLines(o.material, pos, 0, pos.count, o.matrixWorld, s);
+      }
+    });
+  }
+  const root = new THREE.Group();
+  const meshes = [], lines = [];
+  for (const b of meshBins.values()) {
+    b.items.sort((a, c) => a.s - c.s);
+    const im = new THREE.InstancedMesh(b.geometry, b.material, b.items.length);
+    b.items.forEach((it, k) => im.setMatrixAt(k, it.m));
+    im.instanceMatrix.needsUpdate = true;
+    im.frustumCulled = false;
+    im.userData.steps = b.items.map(it => it.s);
+    (Array.isArray(b.material) ? b.material : [b.material]).forEach(tune);
+    root.add(im); meshes.push(im);
+  }
+  for (const b of lineBins.values()) {
+    b.chunks.sort((a, c) => a.s - c.s);
+    const arr = new Float32Array(b.n * 3), steps = [], ends = [];
+    let off = 0;
+    for (const c of b.chunks) { arr.set(c.arr, off * 3); off += c.arr.length / 3; steps.push(c.s); ends.push(off); }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+    const ls = new THREE.LineSegments(geo, b.mat);
+    ls.frustumCulled = false;
+    ls.userData.steps = steps; ls.userData.ends = ends;
+    root.add(ls); lines.push(ls);
+  }
+  return { root, meshes, lines, box: new THREE.Box3().setFromObject(group) };
 }
 
 async function build(name) {
   if (views[name]) return views[name];
   const g = await parse(`0 FILE view_${name}.ldr\n0 !LDRAW_ORG Model\n1 16 0 0 0 1 0 0 0 1 0 0 0 1 ${name}.ldr\n`);
-  let root = g;
-  if (name === 'diorama') root = LDrawUtils.mergeObject(g);
-  root.rotation.x = Math.PI;
-  tune(root);
-  const parts = name === 'diorama' ? [] : g.children[0].children;
-  const box = new THREE.Box3().setFromObject(root);
-  views[name] = { root, parts, box };
+  g.rotation.x = Math.PI;                 // LDraw is Y-down
+  const d = data[name];
+  views[name] = instanced(g, d && d.steps ? (i) => d.steps[i] : null);
   return views[name];
 }
 
@@ -227,7 +304,7 @@ function frame(box, yaw = 30, pitch = 28) {
   place();
   for (let it = 0; it < 6; it++) {
     let mx = 0, my = 0;
-    for (const c of corners) { const v = c.clone().applyMatrix4(camera.matrixWorldInverse); const d = -v.z; mx = Math.max(mx, Math.abs(v.x) / d); my = Math.max(my, Math.abs(v.y) / d); }
+    for (const c of corners) { const q = c.clone().applyMatrix4(camera.matrixWorldInverse); const dd = -q.z; mx = Math.max(mx, Math.abs(q.x) / dd); my = Math.max(my, Math.abs(q.y) / dd); }
     const tv = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)), th = tv * camera.aspect;
     dist *= Math.max(mx / th, my / tv) * 1.08;
     place();
@@ -236,19 +313,22 @@ function frame(box, yaw = 30, pitch = 28) {
   controls.target.copy(sph.center); controls.update();
   sun.position.copy(sph.center).add(new THREE.Vector3(-0.5, 1, 0.6).multiplyScalar(sph.radius * 4));
   sun.target.position.copy(sph.center);
+  requestRender();
 }
 
 function setStep(k) {
   const v = views[current], d = data[current];
   if (!d || !d.steps) return;
-  k = Math.max(0, Math.min(d.n - 1, k));
-  for (let i = 0; i < v.parts.length; i++) v.parts[i].visible = d.steps[i] <= k;
-  const last = Math.max(...d.steps);
+  const last = d.last;
+  k = Math.max(0, Math.min(last, k));
+  for (const im of v.meshes) im.count = upperBound(im.userData.steps, k);
+  for (const ls of v.lines) { const c = upperBound(ls.userData.steps, k); ls.geometry.setDrawRange(0, c ? ls.userData.ends[c - 1] : 0); }
   $('scrub').value = k;
   $('stepbox').innerHTML = `${k + 1} <small>/ ${last + 1}</small>`;
   let sec = d.sections[0][0];
   for (const [n, s] of d.sections) if (s <= k) sec = n;
   $('secname').textContent = sec;
+  requestRender();
 }
 
 function stopPlay() { if (stepTimer) { clearInterval(stepTimer); stepTimer = null; $('play').textContent = 'Build it'; } }
@@ -266,16 +346,15 @@ async function show(name) {
   const bar = $('stepbar');
   if (d && d.steps) {
     bar.dataset.mode = 'steps';
-    const last = Math.max(...d.steps);
-    $('scrub').max = last;
+    $('scrub').max = d.last;
     $('seclabel').textContent = 'Section';
-    setStep(last);
+    setStep(d.last);
   } else {
     bar.dataset.mode = 'static';
     $('seclabel').textContent = 'Showing';
     $('secname').textContent = texts[name] || name;
   }
-  frame(v.box, name === 'lineup' ? 8 : 30, name === 'lineup' ? 14 : name === 'diorama' ? 26 : 30);
+  frame(v.box, name === 'lineup' ? 0 : 30, name === 'lineup' ? 22 : name === 'diorama' ? 26 : 30);
   status.hidden = true;
   $('poster').hidden = true;
   try { history.replaceState(null, '', '#' + name); } catch (e) {}
@@ -288,13 +367,11 @@ $('next').addEventListener('click', () => { stopPlay(); setStep(+$('scrub').valu
 $('play').addEventListener('click', () => {
   if (stepTimer) return stopPlay();
   const d = data[current]; if (!d || !d.steps) return;
-  let k = +$('scrub').value; const last = Math.max(...d.steps);
+  let k = +$('scrub').value; const last = d.last;
   if (k >= last) k = -1;
   $('play').textContent = 'Pause';
   stepTimer = setInterval(() => { k++; setStep(k); if (k >= last) stopPlay(); }, 380);
 });
-
-function loop() { controls.update(); renderer.render(scene, camera); requestAnimationFrame(loop); }
 
 (async () => {
   try {
@@ -305,6 +382,7 @@ function loop() { controls.update(); renderer.render(scene, camera); requestAnim
       loader.preloadMaterials('ldconfig.txt'),
     ]);
     data = d;
+    for (const m of Object.values(data)) if (m.steps) m.last = m.steps.reduce((a, b) => Math.max(a, b), 0);
     status.textContent = 'Reading 385 LDraw part files…';
     await parse(pack);
     loop();
