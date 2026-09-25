@@ -20,6 +20,7 @@ def main():
     lu, _ = viewer_data.lineup_model()
     lorder, lsteps = export.write_ldr(lu, os.path.join(export.WWW, 'lineup.mpd'), subs=subs)
     jpg = lambda name: os.path.join(OUT, name)
+    only = set(sys.argv[1:])
     job = {'size': [2400, 1150], 'models': [
         {'url': '/models/diorama.mpd', 'steps': steps, 'shots': [
             {'out': jpg('diorama_hero.jpg'), 'fmt': 'jpg', 'yaw': 16, 'pitch': 24, 'pad': 1.02, 'bg': '#f2f4f6', 'shadows': True, 'size': [2400, 1150]},
@@ -34,11 +35,15 @@ def main():
         {'url': '/models/instr_ravencrag.ldr', 'steps': None, 'shots': [
             {'out': jpg('ravencrag.jpg'), 'fmt': 'jpg', 'yaw': -58, 'pitch': 24, 'pad': 1.03, 'bg': '#f2f4f6', 'shadows': True, 'size': [1600, 1200]}]},
         {'url': '/models/lineup.mpd', 'steps': None, 'shots': [
-            {'out': jpg('the_cast.jpg'), 'fmt': 'jpg', 'yaw': 0, 'pitch': 16, 'pad': 1.02, 'bg': '#f2f4f6', 'shadows': True, 'size': [2000, 1100]}]},
+            {'out': jpg('the_cast.jpg'), 'fmt': 'jpg', 'yaw': 0, 'pitch': 26, 'pad': 1.02, 'bg': '#f2f4f6', 'shadows': True, 'size': [2000, 900]}]},
     ]}
     for mdl in job['models']:
         if mdl['steps'] is None:
             del mdl['steps']
+    if only:
+        for mdl in job['models']:
+            mdl['shots'] = [sh for sh in mdl['shots'] if os.path.basename(sh['out']).split('.')[0] in only]
+        job['models'] = [mdl for mdl in job['models'] if mdl['shots']]
     path = os.path.join(ins.BUILD, 'job_heroes.json')
     json.dump(job, open(path, 'w'))
     subprocess.run(ins.RENDER + [path], check=True)

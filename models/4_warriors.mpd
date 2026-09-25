@@ -5,42 +5,38 @@
 0 !LICENSE Redistributable under CCAL version 2.0 : see CAreadme.txt
 
 0 // Build
-1 16 -245 0 0 1 0 0 0 1 0 0 0 1 lion_duke.ldr
-1 16 -175 0 0 1 0 0 0 1 0 0 0 1 lion_knight1.ldr
-1 16 -105 0 0 1 0 0 0 1 0 0 0 1 lion_knight2.ldr
-1 16 -35 0 0 1 0 0 0 1 0 0 0 1 lion_soldier1.ldr
-1 16 35 0 0 1 0 0 0 1 0 0 0 1 lion_soldier2.ldr
-1 16 105 0 0 1 0 0 0 1 0 0 0 1 lion_soldier3.ldr
-1 16 175 0 0 1 0 0 0 1 0 0 0 1 lion_archer.ldr
-1 16 245 0 0 1 0 0 0 1 0 0 0 1 lion_banner.ldr
-1 16 -315 0 110 1 0 0 0 1 0 0 0 1 smith.ldr
-1 16 -245 0 110 1 0 0 0 1 0 0 0 1 farmer.ldr
-1 16 -175 0 110 1 0 0 0 1 0 0 0 1 farmwife.ldr
-1 16 -105 0 110 1 0 0 0 1 0 0 0 1 torchbearer.ldr
-1 16 -35 0 110 1 0 0 0 1 0 0 0 1 digger.ldr
-1 16 35 0 110 1 0 0 0 1 0 0 0 1 merchant.ldr
-1 16 105 0 110 1 0 0 0 1 0 0 0 1 alewife.ldr
-1 16 175 0 110 1 0 0 0 1 0 0 0 1 child.ldr
-1 16 245 0 110 1 0 0 0 1 0 0 0 1 friar.ldr
-1 16 315 0 110 1 0 0 0 1 0 0 0 1 woodcutter.ldr
-1 16 -245 0 220 1 0 0 0 1 0 0 0 1 raven_baroness.ldr
-1 16 -175 0 220 1 0 0 0 1 0 0 0 1 raven_knight1.ldr
-1 16 -105 0 220 1 0 0 0 1 0 0 0 1 raven_knight2.ldr
-1 16 -35 0 220 1 0 0 0 1 0 0 0 1 raven_soldier1.ldr
-1 16 35 0 220 1 0 0 0 1 0 0 0 1 raven_soldier2.ldr
-1 16 105 0 220 1 0 0 0 1 0 0 0 1 raven_soldier3.ldr
-1 16 175 0 220 1 0 0 0 1 0 0 0 1 raven_crossbow.ldr
-1 16 245 0 220 1 0 0 0 1 0 0 0 1 raven_banner.ldr
-1 16 -225 0 -170 1 0 0 0 1 0 0 0 1 lion_horse1.ldr
-1 16 -225 -67 -160 1 0 0 0 1 0 0 0 1 lion_knight1.ldr
-1 16 -75 0 -170 1 0 0 0 1 0 0 0 1 lion_horse2.ldr
-1 16 -75 -67 -160 1 0 0 0 1 0 0 0 1 lion_knight2.ldr
-1 16 75 0 -170 1 0 0 0 1 0 0 0 1 raven_horse1.ldr
-1 16 75 -67 -160 1 0 0 0 1 0 0 0 1 raven_knight1.ldr
-1 16 225 0 -170 1 0 0 0 1 0 0 0 1 raven_horse2.ldr
-1 16 225 -67 -160 1 0 0 0 1 0 0 0 1 raven_knight2.ldr
-1 16 -320 0 -170 1 0 0 0 1 0 0 0 1 lion_catapult.ldr
-1 16 200 0 -170 1 0 0 0 1 0 0 0 1 raven_catapult.ldr
+1 16 -587 0 0 1 0 0 0 1 0 0 0 1 lion_duke.ldr
+1 16 -509 0 0 1 0 0 0 1 0 0 0 1 lion_soldier1.ldr
+1 16 -431 0 0 1 0 0 0 1 0 0 0 1 lion_soldier2.ldr
+1 16 -353 0 0 1 0 0 0 1 0 0 0 1 lion_soldier3.ldr
+1 16 -509 0 115 1 0 0 0 1 0 0 0 1 lion_archer.ldr
+1 16 -431 0 115 1 0 0 0 1 0 0 0 1 lion_banner.ldr
+1 16 -117 0 0 1 0 0 0 1 0 0 0 1 smith.ldr
+1 16 -39 0 0 1 0 0 0 1 0 0 0 1 farmer.ldr
+1 16 39 0 0 1 0 0 0 1 0 0 0 1 farmwife.ldr
+1 16 117 0 0 1 0 0 0 1 0 0 0 1 torchbearer.ldr
+1 16 -117 0 115 1 0 0 0 1 0 0 0 1 digger.ldr
+1 16 -39 0 115 1 0 0 0 1 0 0 0 1 merchant.ldr
+1 16 39 0 115 1 0 0 0 1 0 0 0 1 alewife.ldr
+1 16 117 0 115 1 0 0 0 1 0 0 0 1 child.ldr
+1 16 -39 0 230 1 0 0 0 1 0 0 0 1 friar.ldr
+1 16 39 0 230 1 0 0 0 1 0 0 0 1 woodcutter.ldr
+1 16 353 0 0 1 0 0 0 1 0 0 0 1 raven_baroness.ldr
+1 16 431 0 0 1 0 0 0 1 0 0 0 1 raven_soldier1.ldr
+1 16 509 0 0 1 0 0 0 1 0 0 0 1 raven_soldier2.ldr
+1 16 587 0 0 1 0 0 0 1 0 0 0 1 raven_soldier3.ldr
+1 16 431 0 115 1 0 0 0 1 0 0 0 1 raven_crossbow.ldr
+1 16 509 0 115 1 0 0 0 1 0 0 0 1 raven_banner.ldr
+1 16 -620 0 330 1 0 0 0 1 0 0 0 1 lion_horse1.ldr
+1 16 -620 -67 340 1 0 0 0 1 0 0 0 1 lion_knight1.ldr
+1 16 -480 0 330 1 0 0 0 1 0 0 0 1 lion_horse2.ldr
+1 16 -480 -67 340 1 0 0 0 1 0 0 0 1 lion_knight2.ldr
+1 16 320 0 330 1 0 0 0 1 0 0 0 1 raven_horse1.ldr
+1 16 320 -67 340 1 0 0 0 1 0 0 0 1 raven_knight1.ldr
+1 16 460 0 330 1 0 0 0 1 0 0 0 1 raven_horse2.ldr
+1 16 460 -67 340 1 0 0 0 1 0 0 0 1 raven_knight2.ldr
+1 16 -410 0 290 1 0 0 0 1 0 0 0 1 lion_catapult.ldr
+1 16 530 0 290 1 0 0 0 1 0 0 0 1 raven_catapult.ldr
 0 STEP
 0 NOFILE
 0 FILE lion_duke.ldr

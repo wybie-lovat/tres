@@ -39,9 +39,9 @@ h3 { margin: 4mm 0 3mm; font-size: 15pt; color: var(--c1); }
 .inv .q { font-size: 10pt; font-weight: bold; }
 .inv .id { color: #555; }
 /* steps */
-.steps { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; height: 181mm; margin-top: 3mm; }
-.steps.four { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 4mm; }
-.step { border: .35mm solid #e2e2e2; border-radius: 2mm; position: relative; display: flex; flex-direction: column; padding: 2.5mm; }
+.steps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: 6mm; height: 181mm; margin-top: 3mm; }
+.steps.four { grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); gap: 4mm; }
+.step { border: .35mm solid #e2e2e2; border-radius: 2mm; position: relative; display: flex; flex-direction: column; padding: 2.5mm; min-height: 0; overflow: hidden; }
 .step .num { position: absolute; left: 3mm; top: 2mm; font-size: 24pt; font-weight: bold; color: #1b1b1b; }
 .four .step .num { font-size: 16pt; }
 .step .sec { margin-left: 16mm; min-height: 6mm; font-size: 9pt; font-weight: bold; color: var(--c1); }

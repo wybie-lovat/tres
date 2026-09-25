@@ -10,7 +10,7 @@ about $430 of BrickLink parts (budget: $500)**
 
 | | |
 |---|---|
-| **Interactive 3D viewer** | __VIEWER_LINK__ (or open `viewer/` locally, see below) |
+| **Interactive 3D viewer** | [Open the 3D viewer](https://claude.ai/artifact/1EPV1mjvLhD8HNA5NgNJmp) (private until you share it), or run [`viewer/`](viewer) locally |
 | **Building instructions** | [`instructions/`](instructions): four PDF booklets, 322 steps |
 | **BrickLink order** | [`bricklink/wanted_list_complete.xml`](bricklink/wanted_list_complete.xml) and the [ordering guide](bricklink/ORDERING.md) |
 | **Digital model** | [`models/`](models): LDraw files for BrickLink Studio, LeoCAD and LDCad |
@@ -101,6 +101,9 @@ with a dark-blue roof, weapon crates and barrels.
 | Catapult | | Catapult |
 
 ![The clash at the barricade](renders/battle_closeup.jpg)
+
+More views: [overhead battle map](renders/diorama_overhead.jpg) ·
+[looking west from Ravencrag](renders/diorama_from_ravencrag.jpg)
 
 ## Building it
 

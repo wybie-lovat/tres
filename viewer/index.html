@@ -1,3 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
 <title>Nobles &amp; Common Folk at Quarrel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -132,9 +139,9 @@ footer { color: var(--muted); font-size: 13px; }
           <thead><tr><th>Book</th><th class="n">Pieces</th><th class="n">Steps</th><th class="n">Parts cost*</th></tr></thead>
           <tbody><tr><td><span class="book">1</span>Lionhold</td><td class="n">1,263</td><td class="n">110</td><td class="n">$118.63</td></tr>
 <tr><td><span class="book">2</span>Millbrook</td><td class="n">872</td><td class="n">72</td><td class="n">$108.37</td></tr>
-<tr><td><span class="book">3</span>Ravencrag Keep</td><td class="n">1,094</td><td class="n">46</td><td class="n">$113.33</td></tr>
-<tr><td><span class="book">4</span>Warriors &amp; Weapons</td><td class="n">299</td><td class="n"></td><td class="n">$89.30</td></tr>
-<tr class="total"><td>Complete set</td><td class="n">3,528</td><td class="n">228</td><td class="n">$429.64</td></tr></tbody>
+<tr><td><span class="book">3</span>Ravencrag Keep</td><td class="n">1,094</td><td class="n">102</td><td class="n">$113.33</td></tr>
+<tr><td><span class="book">4</span>Warriors &amp; Weapons</td><td class="n">299</td><td class="n">38</td><td class="n">$89.30</td></tr>
+<tr class="total"><td>Complete set</td><td class="n">3,528</td><td class="n">322</td><td class="n">$429.64</td></tr></tbody>
         </table>
       </div>
       <p class="note">*Estimated BrickLink prices (mixed new/used, USD), shipping not included. The target budget is about $500, so roughly $70 is left for price swings and shipping. Footprint: four 32×32 baseplates in a row, 128 × 32 studs (about 102 × 26 cm).</p>
@@ -226,9 +233,19 @@ function frame(box, yaw = 30, pitch = 28) {
   const sph = box.getBoundingSphere(new THREE.Sphere());
   const y = THREE.MathUtils.degToRad(yaw), p = THREE.MathUtils.degToRad(pitch);
   const dir = new THREE.Vector3(Math.sin(y) * Math.cos(p), Math.sin(p), Math.cos(y) * Math.cos(p));
-  const fit = sph.radius / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) / Math.min(1, camera.aspect * 0.9);
-  camera.position.copy(sph.center).addScaledVector(dir, fit * 0.92);
-  camera.near = fit / 100; camera.far = fit * 20; camera.updateProjectionMatrix();
+  const corners = [];
+  for (const cx of [box.min.x, box.max.x]) for (const cy of [box.min.y, box.max.y]) for (const cz of [box.min.z, box.max.z]) corners.push(new THREE.Vector3(cx, cy, cz));
+  let dist = sph.radius * 3;
+  const place = () => { camera.position.copy(sph.center).addScaledVector(dir, dist); camera.lookAt(sph.center); camera.updateMatrixWorld(); };
+  place();
+  for (let it = 0; it < 6; it++) {
+    let mx = 0, my = 0;
+    for (const c of corners) { const v = c.clone().applyMatrix4(camera.matrixWorldInverse); const d = -v.z; mx = Math.max(mx, Math.abs(v.x) / d); my = Math.max(my, Math.abs(v.y) / d); }
+    const tv = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)), th = tv * camera.aspect;
+    dist *= Math.max(mx / th, my / tv) * 1.08;
+    place();
+  }
+  camera.near = dist / 60; camera.far = dist * 20; camera.updateProjectionMatrix();
   controls.target.copy(sph.center); controls.update();
   sun.position.copy(sph.center).add(new THREE.Vector3(-0.5, 1, 0.6).multiplyScalar(sph.radius * 4));
   sun.target.position.copy(sph.center);
@@ -297,8 +314,8 @@ function loop() { controls.update(); renderer.render(scene, camera); requestAnim
     status.textContent = 'Loading parts library (3 MB)…';
     const [d, pack] = await Promise.all([
       fetch('viewer_data.json').then(r => r.json()),
-      fetch('nobles_pack.mpd').then(r => { if (!r.ok) throw new Error('pack ' + r.status); return r.text(); }),
-      loader.preloadMaterials('LDConfig.ldr'),
+      fetch('nobles_pack.txt').then(r => { if (!r.ok) throw new Error('pack ' + r.status); return r.text(); }),
+      loader.preloadMaterials('ldconfig.txt'),
     ]);
     data = d;
     status.textContent = 'Reading 385 LDraw part files…';
@@ -311,3 +328,6 @@ function loop() { controls.update(); renderer.render(scene, camera); requestAnim
   }
 })();
 </script>
+
+</body>
+</html>

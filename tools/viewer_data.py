@@ -7,23 +7,33 @@ import diorama, export, instructions as ins, warriors, pack, bom
 from lego import Model
 
 def lineup_model():
+    """The cast in three groups (Lions | common folk | Ravens), horses and catapults behind."""
     m = Model('lineup', 'The cast')
-    rows = {'lions': [], 'ravens': [], 'folk': []}
+    groups = {'lions': [], 'folk': [], 'ravens': []}
+    riders = {h['rider'] for h in warriors.HORSES.values()}
     for key, (f, faction, role) in warriors.FIGS.items():
-        rows[faction].append((key, role))
+        if key not in riders:            # knights appear on their horses instead
+            groups[faction].append((key, role))
     meta = []
-    for r, faction in enumerate(('lions', 'folk', 'ravens')):
-        for i, (key, role) in enumerate(rows[faction]):
-            x = (i - (len(rows[faction]) - 1) / 2) * 70
-            m.add_free(key + '.ldr', 16, [x, 0, r * 110], np.eye(3), sub=True)
+    centres = {'lions': -470.0, 'folk': 0.0, 'ravens': 470.0}
+    for faction, figs in groups.items():
+        cx = centres[faction]
+        for i, (key, role) in enumerate(figs):
+            row, col = divmod(i, 4)
+            n_in_row = min(4, len(figs) - row * 4)
+            x = cx + (col - (n_in_row - 1) / 2) * 78
+            m.add_free(key + '.ldr', 16, [x, 0, row * 115.0], np.eye(3), sub=True)
             meta.append(dict(key=key, role=role, faction=faction))
-    for i, (key, h) in enumerate(warriors.HORSES.items()):
-        x = (i - 1.5) * 150
-        pos = np.array([x, 0, -170.0])
+    horses = [(k, h) for k, h in warriors.HORSES.items()]
+    for key, h in horses:
+        faction = 'lions' if key.startswith('lion') else 'ravens'
+        k = 0 if key.endswith('1') else 1
+        pos = np.array([centres[faction] - 150 + k * 140, 0, 330.0])
         m.add_free(key + '.ldr', 16, pos, np.eye(3), sub=True)
         m.add_free(h['rider'] + '.ldr', 16, pos + warriors.RIDER_OFFSET, np.eye(3), sub=True)
-    for i, key in enumerate(('lion_catapult', 'raven_catapult')):
-        m.add_free(key + '.ldr', 16, [(i - 0.5) * 520 - 60, 0, -170.0], np.eye(3), sub=True)
+    for key in ('lion_catapult', 'raven_catapult'):
+        faction = 'lions' if key.startswith('lion') else 'ravens'
+        m.add_free(key + '.ldr', 16, [centres[faction] + 60, 0, 290.0], np.eye(3), sub=True)
     return m, meta
 
 def main(out_dir):
